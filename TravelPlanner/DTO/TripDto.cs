@@ -1,5 +1,7 @@
 namespace TravelPlanner.DTO;
 
+using TravelPlanner.Models;
+
 public class TripDto
 {
     public int Id { get; set; }
@@ -19,4 +21,6 @@ public class TripDto
     public string Country { get; set; } = string.Empty;
 
     public string City { get; set; } = string.Empty;
+
+    public List<HotelBooking> HotelBookings { get; set; } = [];
 }

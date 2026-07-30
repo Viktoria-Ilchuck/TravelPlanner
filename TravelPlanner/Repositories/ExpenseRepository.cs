@@ -71,7 +71,9 @@ public class ExpenseRepository : IExpenseRepository
                            INSERT INTO Expenses
                            (
                                Amount,
+                               Currency,
                                Date,
+                               CreatedAt,
                                Description,
                                CategoryId,
                                TripId
@@ -79,7 +81,9 @@ public class ExpenseRepository : IExpenseRepository
                            VALUES
                            (
                                @Amount,
+                               @Currency,
                                @Date,
+                               @CreatedAt,
                                @Description,
                                @CategoryId,
                                @TripId
@@ -88,7 +92,6 @@ public class ExpenseRepository : IExpenseRepository
 
         await connection.ExecuteAsync(sql, expense);
     }
-
     public async Task UpdateAsync(Expense expense)
     {
         using var connection = _context.CreateConnection();
@@ -96,12 +99,14 @@ public class ExpenseRepository : IExpenseRepository
         const string sql = """
                            UPDATE Expenses
                            SET
-                               Amount=@Amount,
-                               Date=@Date,
-                               Description=@Description,
-                               CategoryId=@CategoryId,
-                               TripId=@TripId
-                           WHERE Id=@Id
+                               Amount = @Amount,
+                               Currency = @Currency,
+                               Date = @Date,
+                               CreatedAt = @CreatedAt,
+                               Description = @Description,
+                               CategoryId = @CategoryId,
+                               TripId = @TripId
+                           WHERE Id = @Id
                            """;
 
         await connection.ExecuteAsync(sql, expense);
@@ -113,7 +118,7 @@ public class ExpenseRepository : IExpenseRepository
 
         const string sql = """
                            DELETE FROM Expenses
-                           WHERE Id=@Id
+                           WHERE Id = @Id
                            """;
 
         await connection.ExecuteAsync(sql, new

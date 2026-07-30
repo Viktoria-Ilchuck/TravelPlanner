@@ -1,4 +1,8 @@
 using Spectre.Console;
+using TravelPlanner.Menus.Expenses;
+using TravelPlanner.Menus.Hotels;
+using TravelPlanner.Menus.Reports;
+using TravelPlanner.Services;
 
 namespace TravelPlanner.Menus;
 
@@ -9,19 +13,28 @@ public class UserMenu
     private readonly MyTripsMenu _myTripsMenu;
     private readonly EditTripMenu _editTripMenu;
     private readonly DeleteTripMenu _deleteTripMenu;
+    private readonly HotelMenu _hotelMenu;
+    private readonly ExpenseMenu _expenseMenu;
+    private readonly ReportMenu _reportMenu;
 
     public UserMenu(
         TripMenu tripMenu,
         CreateTripMenu createTripMenu,
         MyTripsMenu myTripsMenu,
         EditTripMenu editTripMenu,
-        DeleteTripMenu deleteTripMenu)
+        DeleteTripMenu deleteTripMenu,
+        HotelMenu hotelMenu,
+        ExpenseMenu expenseMenu,
+        ReportMenu reportMenu)
     {
         _tripMenu = tripMenu;
         _createTripMenu = createTripMenu;
         _myTripsMenu = myTripsMenu;
         _editTripMenu = editTripMenu;
         _deleteTripMenu = deleteTripMenu;
+        _hotelMenu = hotelMenu;
+        _expenseMenu = expenseMenu;
+        _reportMenu = reportMenu;
     }
 
     public async Task ShowAsync()
@@ -60,8 +73,7 @@ public class UserMenu
                     break;
 
                 case 2:
-                    AnsiConsole.MarkupLine("[yellow]Розділ готелів ще не реалізований[/]");
-                    Console.ReadKey();
+                    await _hotelMenu.ShowAsync();
                     break;
 
                 case 3:
@@ -70,13 +82,11 @@ public class UserMenu
                     break;
 
                 case 4:
-                    AnsiConsole.MarkupLine("[yellow]Розділ витрат ще не реалізований[/]");
-                    Console.ReadKey();
+                    await _expenseMenu.ShowAsync();
                     break;
 
                 case 5:
-                    AnsiConsole.MarkupLine("[yellow]Розділ звітів ще не реалізований[/]");
-                    Console.ReadKey();
+                    await _reportMenu.ShowAsync();
                     break;
 
                 case 6:

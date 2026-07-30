@@ -66,4 +66,27 @@ public class CityService
     {
         await _cityRepository.DeleteAsync(id);
     }
+    
+    public async Task<int> GetOrCreateCityAsync(string cityName)
+    {
+        cityName = cityName.Trim();
+
+        var city = await _cityRepository.GetByNameAsync(cityName);
+
+        if (city != null)
+            return city.Id;
+
+        await _cityRepository.AddAsync(new City
+        {
+            Name = cityName,
+            CountryId = 1
+        });
+
+        city = await _cityRepository.GetByNameAsync(cityName);
+
+        if (city == null)
+            throw new Exception($"Місто '{cityName}' не вдалося створити.");
+
+        return city.Id;
+    }
 }

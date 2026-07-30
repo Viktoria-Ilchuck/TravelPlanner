@@ -1,16 +1,20 @@
+using TravelPlanner.DTO;
 using TravelPlanner.Models;
 using TravelPlanner.Repositories;
-using TravelPlanner.DTO;
 
 namespace TravelPlanner.Services;
 
 public class TripService
 {
     private readonly ITripRepository _tripRepository;
+    private readonly HotelBookingService _hotelBookingService;
 
-    public TripService(ITripRepository tripRepository)
+    public TripService(
+        ITripRepository tripRepository,
+        HotelBookingService hotelBookingService)
     {
         _tripRepository = tripRepository;
+        _hotelBookingService = hotelBookingService;
     }
 
     public async Task CreateTripAsync(
@@ -22,10 +26,19 @@ public class TripService
         int cityId,
         int ownerId)
     {
+        if (string.IsNullOrWhiteSpace(title))
+            throw new Exception("Введіть назву подорожі.");
+
+        if (budget <= 0)
+            throw new Exception("Бюджет повинен бути більшим за 0.");
+
+        if (startDate >= endDate)
+            throw new Exception("Дата початку повинна бути раніше дати завершення.");
+
         var trip = new Trip
         {
-            Title = title,
-            Description = description,
+            Title = title.Trim(),
+            Description = description?.Trim(),
             StartDate = startDate,
             EndDate = endDate,
             Budget = budget,
@@ -54,6 +67,20 @@ public class TripService
 
     public async Task UpdateTripAsync(Trip trip)
     {
+        if (string.IsNullOrWhiteSpace(trip.Title))
+            throw new Exception("Введіть назву подорожі.");
+
+        if (trip.Budget <= 0)
+            throw new Exception("Бюджет повинен бути більшим за 0.");
+
+        if (trip.StartDate >= trip.EndDate)
+            throw new Exception("Дата початку повинна бути раніше дати завершення.");
+
+        trip.Title = trip.Title.Trim();
+
+        if (!string.IsNullOrWhiteSpace(trip.Description))
+            trip.Description = trip.Description.Trim();
+
         await _tripRepository.UpdateAsync(trip);
     }
 
@@ -76,14 +103,18 @@ public class TripService
     {
         return await _tripRepository.GetByDateAsync(start, end);
     }
-    
+
     public async Task<List<TripDto>> GetDetailedTripsAsync(int ownerId)
     {
-        return await _tripRepository.GetDetailedTripsAsync(ownerId);
+        var trips = await _tripRepository.GetDetailedTripsAsync(ownerId);
+
+        foreach (var trip in trips)
+        {
+            trip.HotelBookings =
+                await _hotelBookingService.GetByTripAsync(trip.Id);
+        }
+
+        return trips;
     }
     
-    public async Task<List<Trip>> GetUserTripsAsync(int ownerId)
-    {
-        return await _tripRepository.GetByOwnerAsync(ownerId);
-    }
 }

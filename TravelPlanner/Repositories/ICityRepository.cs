@@ -11,6 +11,8 @@ public interface ICityRepository
     Task<City?> GetByIdAsync(int id);
 
     Task<City?> GetByNameAsync(string name, int countryId);
+    
+    Task<City?> GetByNameAsync(string name);
 
     Task AddAsync(City city);
 

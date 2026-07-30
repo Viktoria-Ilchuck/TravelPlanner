@@ -1,5 +1,7 @@
 using Spectre.Console;
+using TravelPlanner.Models;
 using TravelPlanner.Services;
+using TravelPlanner.Validators;
 
 namespace TravelPlanner.Menus;
 
@@ -9,17 +11,20 @@ public class CreateTripMenu
     private readonly CurrentUserService _currentUser;
     private readonly CountryService _countryService;
     private readonly CityService _cityService;
+    private readonly TripValidator _validator;
 
     public CreateTripMenu(
         TripService tripService,
         CurrentUserService currentUser,
         CountryService countryService,
-        CityService cityService)
+        CityService cityService,
+        TripValidator validator)
     {
         _tripService = tripService;
         _currentUser = currentUser;
         _countryService = countryService;
         _cityService = cityService;
+        _validator = validator;
     }
 
     public async Task ShowAsync()
@@ -39,27 +44,13 @@ public class CreateTripMenu
 
         var cityName = AnsiConsole.Ask<string>("Місто:");
 
-        var budget = AnsiConsole.Prompt(
-            new TextPrompt<decimal>("Бюджет:")
-                .Validate(x =>
-                    x >= 0
-                        ? ValidationResult.Success()
-                        : ValidationResult.Error("[red]Бюджет не може бути від'ємним[/]")));
+        var budget = AnsiConsole.Ask<decimal>("Бюджет:");
 
         var startDate = AnsiConsole.Ask<DateTime>(
             "Дата початку (yyyy-MM-dd):");
 
         var endDate = AnsiConsole.Ask<DateTime>(
             "Дата завершення (yyyy-MM-dd):");
-
-        if (endDate < startDate)
-        {
-            AnsiConsole.MarkupLine(
-                "[red]Дата завершення не може бути раніше дати початку.[/]");
-
-            Console.ReadKey();
-            return;
-        }
 
         int countryId =
             await _countryService.GetOrCreateCountryAsync(countryName);
@@ -69,14 +60,41 @@ public class CreateTripMenu
                 cityName,
                 countryId);
 
+        var trip = new Trip
+        {
+            Title = title,
+            Description = description,
+            StartDate = startDate,
+            EndDate = endDate,
+            Budget = budget,
+            Status = "Запланована",
+            CityId = cityId,
+            OwnerId = _currentUser.CurrentUser!.Id
+        };
+
+        var result = _validator.Validate(trip);
+
+        if (!result.IsValid)
+        {
+            AnsiConsole.MarkupLine("[red]Помилки:[/]");
+
+            foreach (var error in result.Errors)
+            {
+                AnsiConsole.MarkupLine($"[red]- {error.ErrorMessage}[/]");
+            }
+
+            Console.ReadKey();
+            return;
+        }
+
         await _tripService.CreateTripAsync(
-            title,
-            description,
-            startDate,
-            endDate,
-            budget,
-            cityId,
-            _currentUser.CurrentUser!.Id);
+            trip.Title,
+            trip.Description,
+            trip.StartDate,
+            trip.EndDate,
+            trip.Budget,
+            trip.CityId,
+            trip.OwnerId);
 
         AnsiConsole.MarkupLine(
             "\n[green]✓ Подорож успішно створена.[/]");

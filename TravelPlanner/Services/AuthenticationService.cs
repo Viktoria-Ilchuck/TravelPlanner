@@ -1,5 +1,6 @@
 using TravelPlanner.Models;
 using TravelPlanner.Repositories;
+using TravelPlanner.Helpers;
 
 namespace TravelPlanner.Services;
 
@@ -23,7 +24,7 @@ public class AuthenticationService
         if (user == null)
             return null;
 
-        if (user.PasswordHash != password)
+        if (!PasswordHasher.Verify(password, user.PasswordHash))
             return null;
 
         return user;
@@ -36,6 +37,26 @@ public class AuthenticationService
         string login,
         string password)
     {
+        if (string.IsNullOrWhiteSpace(firstName))
+            return "Введіть ім'я.";
+
+        if (string.IsNullOrWhiteSpace(lastName))
+            return "Введіть прізвище.";
+
+        if (string.IsNullOrWhiteSpace(login))
+            return "Введіть логін.";
+
+        if (string.IsNullOrWhiteSpace(password))
+            return "Введіть пароль.";
+
+        if (string.IsNullOrWhiteSpace(email))
+            return "Введіть Email.";
+
+        firstName = firstName.Trim();
+        lastName = lastName.Trim();
+        email = email.Trim();
+        login = login.Trim();
+        
         if (await _userRepository.GetByLoginAsync(login) != null)
             return "Користувач з таким логіном вже існує.";
 
@@ -53,7 +74,7 @@ public class AuthenticationService
             LastName = lastName,
             Email = email,
             Login = login,
-            PasswordHash = password,
+            PasswordHash = PasswordHasher.Hash(password),
             RoleId = role.Id,
             CreatedAt = DateTime.Now
         };

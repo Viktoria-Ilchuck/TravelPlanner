@@ -35,7 +35,7 @@ public class CityRepository : ICityRepository
         const string sql = """
             SELECT *
             FROM Cities
-            WHERE CountryId=@CountryId
+            WHERE CountryId = @CountryId
             ORDER BY Name
             """;
 
@@ -54,7 +54,7 @@ public class CityRepository : ICityRepository
         const string sql = """
             SELECT *
             FROM Cities
-            WHERE Id=@Id
+            WHERE Id = @Id
             """;
 
         return await connection.QueryFirstOrDefaultAsync<City>(sql, new
@@ -70,8 +70,8 @@ public class CityRepository : ICityRepository
         const string sql = """
             SELECT *
             FROM Cities
-            WHERE lower(Name)=lower(@Name)
-            AND CountryId=@CountryId
+            WHERE lower(Name) = lower(@Name)
+            AND CountryId = @CountryId
             LIMIT 1
             """;
 
@@ -79,6 +79,23 @@ public class CityRepository : ICityRepository
         {
             Name = name.Trim(),
             CountryId = countryId
+        });
+    }
+
+    public async Task<City?> GetByNameAsync(string name)
+    {
+        using var connection = _context.CreateConnection();
+
+        const string sql = """
+            SELECT *
+            FROM Cities
+            WHERE lower(Name) = lower(@Name)
+            LIMIT 1
+            """;
+
+        return await connection.QueryFirstOrDefaultAsync<City>(sql, new
+        {
+            Name = name.Trim()
         });
     }
 
@@ -109,12 +126,13 @@ public class CityRepository : ICityRepository
         const string sql = """
             UPDATE Cities
             SET
-                Name=@Name,
-                CountryId=@CountryId
-            WHERE Id=@Id
+                Name = @Name,
+                CountryId = @CountryId
+            WHERE Id = @Id
             """;
 
         await connection.ExecuteAsync(sql, city);
+        
     }
 
     public async Task DeleteAsync(int id)
@@ -123,7 +141,7 @@ public class CityRepository : ICityRepository
 
         const string sql = """
             DELETE FROM Cities
-            WHERE Id=@Id
+            WHERE Id = @Id
             """;
 
         await connection.ExecuteAsync(sql, new

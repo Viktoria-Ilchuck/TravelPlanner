@@ -64,13 +64,32 @@ CREATE TABLE IF NOT EXISTS Hotels(
     Name TEXT NOT NULL,
     Address TEXT NOT NULL,
     Stars INTEGER NOT NULL,
-    Phone TEXT,
-    Email TEXT,
-    Website TEXT,
+    Phone TEXT NOT NULL,
+    Email TEXT NOT NULL,
+    Website TEXT NOT NULL,
     PricePerNight REAL NOT NULL,
     CityId INTEGER NOT NULL,
     TripId INTEGER,
     FOREIGN KEY(CityId) REFERENCES Cities(Id),
+    FOREIGN KEY(TripId) REFERENCES Trips(Id)
+);
+
+CREATE TABLE IF NOT EXISTS HotelBookings
+(
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    HotelId INTEGER NOT NULL,
+
+    TripId INTEGER NOT NULL,
+
+    CheckIn TEXT NOT NULL,
+
+    CheckOut TEXT NOT NULL,
+
+    Guests INTEGER NOT NULL,
+
+    FOREIGN KEY(HotelId) REFERENCES Hotels(Id),
+
     FOREIGN KEY(TripId) REFERENCES Trips(Id)
 );
 

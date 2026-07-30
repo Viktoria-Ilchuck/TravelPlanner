@@ -27,7 +27,7 @@ public class EditTripMenu
     {
         AnsiConsole.Clear();
 
-        var trips = await _tripService.GetUserTripsAsync(
+        var trips = await _tripService.GetMyTripsAsync(
             _currentUser.CurrentUser!.Id);
 
         if (!trips.Any())

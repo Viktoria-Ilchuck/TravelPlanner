@@ -20,5 +20,12 @@ public class Hotel
 
     public int CityId { get; set; }
 
+    public string CityName { get; set; } = string.Empty;
+
     public int? TripId { get; set; }
+
+    public override string ToString()
+    {
+        return $"{Name} ({Stars}★)";
+    }
 }

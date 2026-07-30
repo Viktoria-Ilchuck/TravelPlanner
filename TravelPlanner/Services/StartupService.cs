@@ -1,5 +1,6 @@
 using TravelPlanner.Models;
 using TravelPlanner.Repositories;
+using TravelPlanner.Helpers;
 
 namespace TravelPlanner.Services;
 
@@ -67,7 +68,7 @@ public class StartupService
             LastName = "Administrator",
             Email = "admin@travelplanner.local",
             Login = "admin",
-            PasswordHash = "admin123",
+            PasswordHash = PasswordHasher.Hash("admin123"),
             RoleId = adminRole.Id,
             
         });
